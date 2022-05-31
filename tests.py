@@ -1,10 +1,10 @@
-test_dict1 = {"Name": "Jean-Baptiste", "Surname": "Balleyguier"}
-test_dict2 = {"Name": "Gabrielle", "Surname": "Balleyguier"}
-test_liste = [test_dict2, test_dict1]
-test_nom = ["Jean-Baptiste", "Gabrielle", "Léon"]
+test_dict1 = ["Valeur 1", [1, 2]]
+test_dict2 = ["Valeur 2", [2, 3]]
+test_liste = [test_dict1, test_dict2]
+test_nom = [0, 1]
 test_tuple = ()
 
-for Prenom in test_nom:
-    for Name in test_liste:
-        if Name['Name'] == Prenom:
-            print(Prenom)
+for i in test_nom:
+    test_liste[test_nom.index(i)][1].append(i)
+
+print(test_liste)

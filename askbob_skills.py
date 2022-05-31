@@ -8,42 +8,61 @@ import json
 
 with open("askbob_people_withskills.json", 'r') as search:
     askbob_file = json.load(search)
-    askbob_datas = askbob_file['data']
-
-    askbob_skills_list = []
-    askbob_skills_name_list = []
-    askbob_skills_list = [{"Level": 1.0, "Trig": []}, {"Level": 2.0, "Trig": []}, {"Level": 3.0, "Trig": []}]
-    liste_skills = []
-
-    for fiche_octo in askbob_datas:
-        for skills in fiche_octo['skills']:
-            skill = skills['name']
-            if skill not in liste_skills:
-                liste_skills.append(skill)
-    #liste_skills_unique = list(set(liste_skills))
-
+    askbob_datas = askbob_file['data'] # Grappe des données askbob
+    askbob_skills_ref = [] # Référentiel des compétences sous forme de liste itérable
+    askbob_levels_trig = [[1.0, []], [2.0, []], [3.0, []]] # Liste des personnes par niveau d'une compétences entre 1 et 3
     template_skills_liste = []
-    for skill_unique in liste_skills:
-        template_skills_liste.append([{"Skill": skill_unique}, {"Levels": askbob_skills_list}])
+    liste_skill_level_octo = []
+
+# Je crée le référentiel des compétences à partir des données askbob
+    for askbob_fiche_octo in askbob_datas:
+        for skills in askbob_fiche_octo['skills']:
+            skill = skills['name']
+            if skill not in askbob_skills_ref:
+                askbob_skills_ref.append(skill)
+    askbob_skills_ref.sort()
+
+# Je crée un template dans lequel je vais insérer les données
+
+    for askbob_skill in askbob_skills_ref:
+        template_skills_liste.append([askbob_skill, askbob_levels_trig])
+
+    #print(template_skills_liste)
+# Je parse le référentiel des compétences une par une et je regarde pour chaque fiche OCTO, si cette compétence existe et quel est son niveau
+
+    for askbob_fiche_octo in askbob_datas:
+        askbob_datas_trigram = askbob_fiche_octo['trigram']
+        askbob_skills = askbob_fiche_octo['skills']
 
 
-    for fiche_octo in askbob_datas:
-        askbob_datas_trigram = fiche_octo['trigram']
-        askbob_skills = fiche_octo['skills']
+        for askbob_octo_skill in askbob_skills:
+            liste_skill_level_octo.append([askbob_datas_trigram, askbob_skills_ref.index(askbob_octo_skill['name']), askbob_octo_skill['level']])
 
-        for octo_skill in askbob_skills:
-            if octo_skill is not None:
-                askbob_skills_name = octo_skill['name']
-                askbob_skills_level = octo_skill['level']
+    for skill_octo in liste_skill_level_octo:
+        trigram = skill_octo[0]
+        skill_index = skill_octo[1]
 
-                if askbob_skills_name in liste_skills and askbob_skills_level is not None:
-                    if askbob_skills_level == askbob_skills_list[0]["Level"]:
-                        template_skills_liste[1][0]["Trig"].append(askbob_datas_trigram)
-                    elif askbob_skills_level == askbob_skills_list[1]["Level"]:
-                        template_skills_liste[1][1]["Trig"].append(askbob_datas_trigram)
-                    elif askbob_skills_level == askbob_skills_list[2]["Level"]:
-                        template_skills_liste[1][2]["Trig"].append(askbob_datas_trigram)
+        if skill_octo[2] == 1.0:
+            level_index = 0
+        elif skill_octo[2] == 2.0:
+            level_index = 1
+        elif skill_octo[2] == 3.0:
+            level_index = 2
 
-    list_json = json.dumps(askbob_skills_name_list)
-    parsed = json.loads(list_json)
-    print(json.dumps(parsed, indent=4))
+        #skills_liste_level = template_skills_liste[skill_index][1][level_index][1]
+        tmp = []
+        template_skills_liste[skill_index][1][level_index][1].append(trigram)
+
+        tmp = template_skills_liste
+        print(skill_index, level_index, template_skills_liste[skill_index][1][level_index][1])
+        print(template_skills_liste[skill_index])
+        #skills_liste_level.append(trigram)
+
+#print(template_skills_liste)
+f = open('skills.json', 'w')
+f.write(str(template_skills_liste))
+f.close()
+
+    # list_json = json.dumps(template_skills_liste)
+    # parsed = json.loads(list_json)
+    # print(json.dumps(parsed, indent=4))
